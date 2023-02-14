@@ -72,9 +72,6 @@ jobs:
   - ${{ if ne(parameters.enableTelemetry, 'false') }}:
     - name: DOTNET_CLI_TELEMETRY_PROFILE
       value: '$(Build.Repository.Uri)'
-  - ${{ if eq(parameters.enableRichCodeNavigation, 'true') }}:
-    - name: EnableRichCodeNavigation
-      value: 'true'
   - ${{ each variable in parameters.variables }}:
     # handle name-value variable syntax
     # example:
@@ -144,16 +141,6 @@ jobs:
 
   - ${{ each step in parameters.steps }}:
     - ${{ step }}
-
-  - ${{ if eq(parameters.enableRichCodeNavigation, true) }}:
-    - task: RichCodeNavIndexer@0
-      displayName: RichCodeNav Upload
-      inputs:
-        languages: ${{ coalesce(parameters.richCodeNavigationLanguage, 'csharp') }}
-        environment: ${{ coalesce(parameters.richCodeNavigationEnvironment, 'production') }}
-        richNavLogOutputDirectory: $(Build.SourcesDirectory)/artifacts/bin
-        uploadRichNavArtifacts: ${{ coalesce(parameters.richCodeNavigationUploadArtifacts, false) }}
-      continueOnError: true
 
   - ${{ if and(eq(parameters.runAsPublic, 'false'), ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), ne(parameters.disableComponentGovernance, 'true')) }}:
       - task: ComponentGovernanceComponentDetection@0
